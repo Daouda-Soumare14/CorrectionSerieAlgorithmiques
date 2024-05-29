@@ -9,7 +9,15 @@ variable :
 
 début
     TeteLM <-- nil
-    
+
+// tant que (FileVide(Tf, Qf) = faux) faire: Tant que la file n'est pas vide, on continue.
+// défiler(Tf, Qf, val): On retire un élément de la file et on le stocke dans val.
+// allouer(PC): On alloue de la mémoire pour un nouveau nœud PC.
+// PC^.info <-- val: On assigne la valeur retirée de la file à PC.
+// PC^.suiv <-- nil: Le pointeur suivant de PC est initialisé à nil.
+// si (TeteLM = nil) alors: Si la liste est vide, TeteLM pointe vers PC.
+// sinon: Sinon, on ajoute PC à la fin de la liste.
+// PP <-- PC: PP pointe maintenant vers le dernier nœud ajouté.
     tant que (FileVide(Tf,Qf) = faux) faire
         défiler(Tf, Qf, val)
         allouer(PC)
@@ -23,12 +31,27 @@ début
         PP <-- PC
     fin_tant_que
 
+// pos et posMax: Pointeurs pour garder la position actuelle et la position de début de la sous-suite la plus longue.
+// cpt: Compteur pour la longueur actuelle de la sous-suite croissante.
+// max: Longueur maximale trouvée pour une sous-suite croissante.
+// nbss: Nombre de sous-suites croissantes trouvées.
     pos <-- TeteLM
     posMax <-- TeteLM
     cpt <-- 1
     max <-- 0
     nbss <-- 1
 
+// P <-- TeteLM: On initialise P pour parcourir la liste.
+// tant que (P^.suiv ≠ nil) faire: On parcourt la liste jusqu'à l'avant-dernier élément.
+// si (P^.info < P^.suiv^.info) alors: On vérifie si la sous-suite croissante continue.
+// cpt <-- cpt + 1: On incrémente le compteur de longueur de la sous-suite.
+// sinon: Si la sous-suite croissante se termine :
+// si (cpt > max) alors: Si la sous-suite actuelle est la plus longue trouvée :
+// max <-- cpt: On met à jour max.
+// posMax <-- pos: On met à jour la position de début de la plus longue sous-suite.
+// nbss <-- nbss + 1: On incrémente le compteur de sous-suites.
+// cpt <-- 1: On réinitialise le compteur pour la nouvelle sous-suite.
+// pos <-- P^.suiv: On met à jour pos pour la nouvelle sous-suite.
     P <--TeteLM
     tant que (P^.suiv ≠ nil) faire
         si (P^.info < P^.suiv^.info) alors
@@ -43,6 +66,12 @@ début
             pos <-- P^.suiv
         fin_si
     fin_tant_que
+
+// si (nbss = 1) alors: Si on a trouvé qu'une seule sous-suite croissante :
+// max <-- cpt: On met à jour max avec la longueur de cette sous-suite.
+// afficher: On affiche le nombre de sous-suites et la longueur de la plus longue.
+// pour i de 1 à max pas de 1 faire: On parcourt la sous-suite la plus longue pour afficher ses éléments.
+// P <-- P^.suiv: On passe au prochain élément de la sous-suite pour l'afficher.
     si (nbss = 1) alors
         max <-- cpt
         afficher("le nombre de sous suite est", nbss)
@@ -55,71 +84,3 @@ début
 fin
 
 
-
-
-
-type
-    file = ^structure
-    début
-        info : entier
-        suiv : file
-    fin
-
-procédure exo((D) Tf, Qf : file; TeteLM : file)
-variable :
-    pos, posMax, cpt, max, nbss : entier
-    P, PP, PC : file  // Déclaration des variables
-
-début
-    TeteLM <-- nil  // Initialisation de TeteLM à nil
-    
-    // Boucle pour dépiler les éléments de la file Tf et les stocker dans TeteLM
-    tant que (FileVide(Tf, Qf) = faux) faire
-        défiler(Tf, Qf, val)  // Défiler un élément de la file
-        allouer(PC)  // Allouer un nouveau nœud de la liste chaînée
-        PC^.info <-- val  // Stocker la valeur défilée dans le champ info du nœud
-        PC^.suiv <-- nil  // Initialiser le champ suivant à nil
-        si (TeteLM = nil) alors  // Vérifier si TeteLM est vide
-            TeteLM <-- PC  // Si oui, initialiser TeteLM avec le nouveau nœud PC
-        sinon
-            PP^.suiv <-- PC  // Sinon, ajouter le nouveau nœud PC à la fin de la liste
-        fin_si
-        PP <-- PC  // Mettre à jour le pointeur PP pour pointer vers le dernier nœud
-    fin_tant_que
-
-    pos <-- TeteLM  // Initialisation de la position actuelle avec TeteLM
-    posMax <-- TeteLM  // Initialisation de la position maximale avec TeteLM
-    cpt <-- 1  // Initialisation du compteur à 1
-    max <-- 0  // Initialisation de la longueur maximale à 0
-    nbss <-- 1  // Initialisation du nombre de sous-suites à 1
-
-    P <-- TeteLM  // Initialisation de P à TeteLM
-    // Boucle pour parcourir les nœuds de la liste chaînée
-    tant que (P^.suiv ≠ nil) faire
-        si (P^.info < P^.suiv^.info) alors  // Vérifier si la suite est croissante
-            cpt <-- cpt + 1  // Incrémenter le compteur
-        sinon
-            si (cpt > max) alors  // Si la longueur de la suite est supérieure à max
-                max <-- cpt  // Mettre à jour la longueur maximale
-                posMax <-- pos  // Mettre à jour la position maximale
-            fin_si
-            nbss <-- nbss + 1  // Incrémenter le nombre de sous-suites
-            cpt <-- 1  // Réinitialiser le compteur
-            pos <-- P^.suiv  // Mettre à jour la position actuelle
-        fin_si
-        P <-- P^.suiv  // Avancer vers le prochain nœud dans la liste
-    fin_tant_que
-
-    // Affichage des informations sur la sous-suite la plus longue s'il n'y a qu'une seule sous-suite
-    si (nbss = 1) alors
-        max <-- cpt  // Mettre à jour max avec la longueur de la dernière suite
-        afficher("le nombre de sous suite est", nbss)  // Afficher le nombre de sous-suites
-        afficher("la sous suite la plus longue compte", max, "nombre")  // Afficher la longueur maximale
-        P <-- posMax  // Initialiser P à la position maximale
-        // Boucle pour afficher les éléments de la sous-suite la plus longue
-        pour i de 1 à max pas de 1 faire
-            afficher(P^.info)  // Afficher la valeur du nœud actuel
-            P <-- P^.suiv  // Avancer vers le prochain nœud dans la liste
-        fin_pour
-    fin_si
-fin
